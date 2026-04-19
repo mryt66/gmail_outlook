@@ -199,6 +199,20 @@ button.ghost {
   color: var(--muted);
 }
 
+.results-dropdown {
+  margin: 0.4rem 0 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.5rem 0.7rem;
+}
+
+.results-dropdown summary {
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+}
+
 .stats {
   display: flex;
   gap: 0.8rem;
@@ -215,9 +229,13 @@ button.ghost {
 
 .chart-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-top: 0.8rem;
+}
+
+.chart-grid-2x2 {
+  margin-top: 0.7rem;
 }
 
 .chart-card {
@@ -225,6 +243,7 @@ button.ghost {
   border-radius: 14px;
   padding: 0.8rem;
   background: #fff;
+  min-height: 260px;
 }
 
 .chart-card h3 {

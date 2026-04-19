@@ -27,25 +27,16 @@
     <section class="card">
       <h2>Dane respondenta</h2>
       <form id="surveyForm">
-        <div class="grid-two">
+        <div>
           <label>
             Pseudonim (opcjonalnie)
             <input type="text" id="participantName" name="participantName" maxlength="80" placeholder="np. tester_01" />
-          </label>
-          <label>
-            Poziom zaawansowania
-            <select id="experienceLevel" name="experienceLevel" required>
-              <option value="" selected disabled>Wybierz</option>
-              <option value="poczatkujacy">Początkujący</option>
-              <option value="sredniozaawansowany">Średniozaawansowany</option>
-              <option value="zaawansowany">Zaawansowany</option>
-            </select>
           </label>
         </div>
 
         <div id="questionContainer" class="question-list"></div>
 
-        <div class="grid-two">
+        <div>
           <label>
             Którą platformę ogólnie oceniasz lepiej?
             <select id="overallPreference" name="overallPreference" required>
@@ -54,10 +45,6 @@
               <option value="outlook">Outlook</option>
               <option value="remis">Remis</option>
             </select>
-          </label>
-          <label>
-            Komentarz końcowy (opcjonalnie)
-            <textarea id="overallComment" name="overallComment" rows="3" maxlength="1000" placeholder="Najważniejsze spostrzeżenia..."></textarea>
           </label>
         </div>
 
@@ -68,18 +55,27 @@
 
     <section class="card">
       <h2>Wyniki zbiorcze</h2>
-      <p class="muted">Skala pytań: 1-7, gdzie 1 = bardzo słabo, 7 = bardzo dobrze.</p>
-      <div class="stats" id="statsSummary"></div>
-      <div class="chart-grid">
-        <div class="chart-card">
-          <h3>Średnie oceny per kryterium</h3>
-          <canvas id="barChart" aria-label="Wykres słupkowy"></canvas>
+      <details class="results-dropdown" open>
+        <summary>Pokaż wykresy porównawcze</summary>
+        <div class="chart-grid chart-grid-2x2">
+          <div class="chart-card">
+            <h3>Start i nawigacja</h3>
+            <canvas id="barChart1" aria-label="Wykres słupkowy 1"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Wyszukiwanie i tworzenie</h3>
+            <canvas id="barChart2" aria-label="Wykres słupkowy 2"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Zarządzanie i status</h3>
+            <canvas id="barChart3" aria-label="Wykres słupkowy 3"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Wydajność i satysfakcja</h3>
+            <canvas id="barChart4" aria-label="Wykres słupkowy 4"></canvas>
+          </div>
         </div>
-        <div class="chart-card">
-          <h3>Preferencja ogólna</h3>
-          <canvas id="pieChart" aria-label="Wykres preferencji"></canvas>
-        </div>
-      </div>
+      </details>
       <button id="refreshButton" type="button" class="ghost">Odśwież wykresy</button>
       <p id="chartStatus" class="status" aria-live="polite"></p>
     </section>

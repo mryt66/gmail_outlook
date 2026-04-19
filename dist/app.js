@@ -49,11 +49,17 @@ const form = document.getElementById('surveyForm');
 const questionContainer = document.getElementById('questionContainer');
 const submitStatus = document.getElementById('submitStatus');
 const chartStatus = document.getElementById('chartStatus');
-const statsSummary = document.getElementById('statsSummary');
 const refreshButton = document.getElementById('refreshButton');
 
-let barChart;
-let pieChart;
+const CHART_IDS = ['barChart1', 'barChart2', 'barChart3', 'barChart4'];
+const CHART_GROUPS = [
+  [0, 1],
+  [2, 3],
+  [4, 5],
+  [6, 7]
+];
+
+let groupedBarCharts = [];
 
 const appConfig = window.APP_CONFIG || null;
 const hasSupabaseConfig = Boolean(appConfig?.supabaseUrl && appConfig?.supabaseAnonKey);
@@ -206,77 +212,54 @@ function aggregateData(rows) {
   return { labels, gmailAverages, outlookAverages, preference };
 }
 
-function renderStats(totalRows, aggregate) {
-  const gmailOverall = aggregate.gmailAverages.length
-    ? (aggregate.gmailAverages.reduce((sum, value) => sum + value, 0) / aggregate.gmailAverages.length).toFixed(2)
-    : '0.00';
-  const outlookOverall = aggregate.outlookAverages.length
-    ? (aggregate.outlookAverages.reduce((sum, value) => sum + value, 0) / aggregate.outlookAverages.length).toFixed(2)
-    : '0.00';
-
-  statsSummary.innerHTML = `
-    <div class="stat">Liczba odpowiedzi: ${totalRows}</div>
-    <div class="stat">Śr. Gmail: ${gmailOverall}</div>
-    <div class="stat">Śr. Outlook: ${outlookOverall}</div>
-  `;
-}
-
 function renderCharts(aggregate) {
-  if (barChart) {
-    barChart.destroy();
+  for (const chart of groupedBarCharts) {
+    chart.destroy();
   }
-  if (pieChart) {
-    pieChart.destroy();
-  }
+  groupedBarCharts = [];
 
-  const barCtx = document.getElementById('barChart').getContext('2d');
-  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  CHART_GROUPS.forEach((group, index) => {
+    const chartId = CHART_IDS[index];
+    const canvas = document.getElementById(chartId);
+    if (!canvas) {
+      return;
+    }
 
-  barChart = new Chart(barCtx, {
-    type: 'bar',
-    data: {
-      labels: aggregate.labels,
-      datasets: [
-        {
-          label: 'Gmail',
-          data: aggregate.gmailAverages,
-          backgroundColor: '#ff6a3d'
-        },
-        {
-          label: 'Outlook',
-          data: aggregate.outlookAverages,
-          backgroundColor: '#0d8f8d'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          min: 0,
-          max: 7,
-          ticks: { stepSize: 1 }
+    const labels = group.map((questionIndex) => aggregate.labels[questionIndex]);
+    const gmailData = group.map((questionIndex) => aggregate.gmailAverages[questionIndex]);
+    const outlookData = group.map((questionIndex) => aggregate.outlookAverages[questionIndex]);
+
+    const chart = new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Gmail',
+            data: gmailData,
+            backgroundColor: '#ff6a3d'
+          },
+          {
+            label: 'Outlook',
+            data: outlookData,
+            backgroundColor: '#0d8f8d'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            min: 0,
+            max: 10,
+            ticks: { stepSize: 1 }
+          }
         }
       }
-    }
-  });
+    });
 
-  pieChart = new Chart(pieCtx, {
-    type: 'pie',
-    data: {
-      labels: ['Gmail', 'Outlook', 'Remis'],
-      datasets: [
-        {
-          data: [aggregate.preference.gmail, aggregate.preference.outlook, aggregate.preference.remis],
-          backgroundColor: ['#ff6a3d', '#0d8f8d', '#d2c5b8']
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
+    groupedBarCharts.push(chart);
   });
 }
 
@@ -303,8 +286,7 @@ async function refreshCharts() {
     const rows = await fetchRows();
     const aggregate = aggregateData(rows);
     renderCharts(aggregate);
-    renderStats(rows.length, aggregate);
-    chartStatus.textContent = 'Wykresy zaktualizowane.';
+    chartStatus.textContent = `Wykresy zaktualizowane. Odpowiedzi: ${rows.length}.`;
   } catch (error) {
     chartStatus.textContent = `Błąd wykresów: ${error.message}`;
   }
