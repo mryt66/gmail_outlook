@@ -41,27 +41,26 @@ const QUESTIONS = [
   }
 ];
 
-const ONLINE_SAVE_PASSWORD = '123';
-
 const modeBanner = document.getElementById('modeBanner');
 const form = document.getElementById('surveyForm');
 const questionContainer = document.getElementById('questionContainer');
 const submitStatus = document.getElementById('submitStatus');
 const chartStatus = document.getElementById('chartStatus');
 const refreshButton = document.getElementById('refreshButton');
-const pagePassword = document.getElementById('pagePassword');
-const chartGroupSelect = document.getElementById('chartGroupSelect');
 
 const SCALE_DEFAULT_MAX = 10;
-const CHART_GROUPS = [
-  [0, 1],
-  [2, 3],
-  [4, 5],
-  [6, 7]
+const CHART_CANVAS_IDS = [
+  'barChartQ1',
+  'barChartQ2',
+  'barChartQ3',
+  'barChartQ4',
+  'barChartQ5',
+  'barChartQ6',
+  'barChartQ7',
+  'barChartQ8'
 ];
 
-let groupedBarChart = null;
-let latestAggregate = null;
+let chartInstances = [];
 
 const appConfig = window.APP_CONFIG || null;
 const hasSupabaseConfig = Boolean(
@@ -85,6 +84,7 @@ function makeDotScale(name, maxValue) {
       <label class="dot-option" title="${value}">
         <input type="radio" name="${name}" value="${value}" required />
         <span class="dot"></span>
+        <span class="dot-number">${value}</span>
       </label>
     `);
   }
@@ -119,7 +119,7 @@ function renderQuestions() {
 
 function setModeBanner() {
   if (hasSupabaseConfig) {
-    modeBanner.textContent = 'Tryb zapisu: Supabase (online) z hasłem.';
+    modeBanner.textContent = 'Tryb zapisu: Supabase (online).';
     return;
   }
   modeBanner.textContent = 'Tryb zapisu online niedostępny. Uzupełnij config.js.';
@@ -145,10 +145,6 @@ function validateAnswers(answers) {
 async function saveResponse(record) {
   if (!hasSupabaseConfig) {
     throw new Error('Brak konfiguracji Supabase. Uzupełnij config.js.');
-  }
-
-  if (record.online_password !== ONLINE_SAVE_PASSWORD) {
-    throw new Error('Błędne hasło zapisu online.');
   }
 
   const payload = {
@@ -214,50 +210,46 @@ function aggregateData(rows) {
 }
 
 function renderCharts(aggregate) {
-  latestAggregate = aggregate;
-  const groupIndex = Number(chartGroupSelect?.value || 0);
-  const group = CHART_GROUPS[groupIndex] || CHART_GROUPS[0];
-  const canvas = document.getElementById('groupedBarChart');
-  if (!canvas) {
-    return;
+  for (const chart of chartInstances) {
+    chart.destroy();
   }
+  chartInstances = [];
 
-  if (groupedBarChart) {
-    groupedBarChart.destroy();
-  }
+  CHART_CANVAS_IDS.forEach((canvasId, index) => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      return;
+    }
 
-  const labels = group.map((questionIndex) => `Q${questionIndex + 1}`);
-  const gmailData = group.map((questionIndex) => aggregate.gmailAverages[questionIndex]);
-  const outlookData = group.map((questionIndex) => aggregate.outlookAverages[questionIndex]);
-
-  groupedBarChart = new Chart(canvas.getContext('2d'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Gmail',
-          data: gmailData,
-          backgroundColor: '#ff6a3d'
+    const chart = new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Gmail', 'Outlook'],
+        datasets: [
+          {
+            label: `Q${index + 1}`,
+            data: [aggregate.gmailAverages[index], aggregate.outlookAverages[index]],
+            backgroundColor: ['#ff6a3d', '#0d8f8d']
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
         },
-        {
-          label: 'Outlook',
-          data: outlookData,
-          backgroundColor: '#0d8f8d'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          min: 0,
-          max: 10,
-          ticks: { stepSize: 1 }
+        scales: {
+          y: {
+            min: 0,
+            max: 10,
+            ticks: { stepSize: 1 }
+          }
         }
       }
-    }
+    });
+
+    chartInstances.push(chart);
   });
 }
 
@@ -306,7 +298,6 @@ form.addEventListener('submit', async (event) => {
     participant_name: String(formData.get('participantName') || '').trim(),
     answers,
     overall_preference: String(formData.get('overallPreference') || ''),
-    online_password: String(pagePassword?.value || ''),
     created_at: new Date().toISOString()
   };
 
@@ -321,14 +312,6 @@ form.addEventListener('submit', async (event) => {
 });
 
 refreshButton.addEventListener('click', refreshCharts);
-
-if (chartGroupSelect) {
-  chartGroupSelect.addEventListener('change', () => {
-    if (latestAggregate) {
-      renderCharts(latestAggregate);
-    }
-  });
-}
 
 renderQuestions();
 setModeBanner();
