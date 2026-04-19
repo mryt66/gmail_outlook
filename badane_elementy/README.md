@@ -26,6 +26,12 @@
 - [ ] Zmierzenie czasu jaki zajmie dodanie konkretnego wydarzenia w kalendarzu od-do
 - [ ] Zmierzenie czasu jaki zajmie 
 
+## Złożone operacje
+
+Zadania do wykonania składające się z kilku czynności wykonanych po kolei z urzyciem aplikacji.
+Porównywany będzie czas wykonania zadania w zależności od aplikacji.
+
+- [ ] Odpisanie na odebraną wiadomość i utworzenie wydarzenia zawierającego treść odebranej wiadomości
 
 ## Ogólne odczucia
 
