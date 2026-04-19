@@ -13,6 +13,13 @@
   <div class="bg-shape bg-shape-a"></div>
   <div class="bg-shape bg-shape-b"></div>
 
+  <div class="top-password-box">
+    <label>
+      Haslo zapisu online
+      <input type="password" id="pagePassword" placeholder="Wpisz haslo" />
+    </label>
+  </div>
+
   <main class="container">
     <header class="hero">
       <p class="eyebrow">Badanie interakcji</p>
@@ -48,13 +55,6 @@
           </label>
         </div>
 
-        <div>
-          <label>
-            Hasło zapisu online
-            <input type="password" id="onlinePassword" name="onlinePassword" required placeholder="Wpisz hasło" />
-          </label>
-        </div>
-
         <button type="submit" id="submitButton">Zapisz odpowiedzi</button>
         <p id="submitStatus" class="status" aria-live="polite"></p>
       </form>
@@ -63,24 +63,20 @@
     <section class="card">
       <h2>Wyniki zbiorcze</h2>
       <details class="results-dropdown" open>
-        <summary>Pokaż wykresy porównawcze</summary>
-        <div class="chart-grid chart-grid-2x2">
-          <div class="chart-card">
-            <h3>Start i nawigacja</h3>
-            <canvas id="barChart1" aria-label="Wykres słupkowy 1"></canvas>
-          </div>
-          <div class="chart-card">
-            <h3>Wyszukiwanie i tworzenie</h3>
-            <canvas id="barChart2" aria-label="Wykres słupkowy 2"></canvas>
-          </div>
-          <div class="chart-card">
-            <h3>Zarządzanie i status</h3>
-            <canvas id="barChart3" aria-label="Wykres słupkowy 3"></canvas>
-          </div>
-          <div class="chart-card">
-            <h3>Wydajność i satysfakcja</h3>
-            <canvas id="barChart4" aria-label="Wykres słupkowy 4"></canvas>
-          </div>
+        <summary>Pokaz wykres</summary>
+        <div class="results-toolbar">
+          <label>
+            Grupa pytan
+            <select id="chartGroupSelect">
+              <option value="0">Start i nawigacja</option>
+              <option value="1">Wyszukiwanie i tworzenie</option>
+              <option value="2">Zarzadzanie i status</option>
+              <option value="3">Wydajnosc i satysfakcja</option>
+            </select>
+          </label>
+        </div>
+        <div class="chart-card compact-chart-card">
+          <canvas id="groupedBarChart" aria-label="Wykres slupkowy grupy"></canvas>
         </div>
       </details>
       <button id="refreshButton" type="button" class="ghost">Odśwież wykresy</button>
