@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ankieta UX: Gmail vs Outlook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg-shape bg-shape-a"></div>
+  <div class="bg-shape bg-shape-b"></div>
+
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">Badanie interakcji</p>
+      <h1>Gmail vs Outlook</h1>
+      <p class="lead">
+        Wypełnij ankietę na podstawie wykonanych zadań na obu platformach. Dane zapisują się
+        w bazie i zasilają wykresy porównawcze.
+      </p>
+      <div id="modeBanner" class="mode-banner"></div>
+    </header>
+
+    <section class="card">
+      <h2>Dane respondenta</h2>
+      <form id="surveyForm">
+        <div class="grid-two">
+          <label>
+            Pseudonim (opcjonalnie)
+            <input type="text" id="participantName" name="participantName" maxlength="80" placeholder="np. tester_01" />
+          </label>
+          <label>
+            Poziom zaawansowania
+            <select id="experienceLevel" name="experienceLevel" required>
+              <option value="" selected disabled>Wybierz</option>
+              <option value="poczatkujacy">Początkujący</option>
+              <option value="sredniozaawansowany">Średniozaawansowany</option>
+              <option value="zaawansowany">Zaawansowany</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="questionContainer" class="question-list"></div>
+
+        <div class="grid-two">
+          <label>
+            Którą platformę ogólnie oceniasz lepiej?
+            <select id="overallPreference" name="overallPreference" required>
+              <option value="" selected disabled>Wybierz</option>
+              <option value="gmail">Gmail</option>
+              <option value="outlook">Outlook</option>
+              <option value="remis">Remis</option>
+            </select>
+          </label>
+          <label>
+            Komentarz końcowy (opcjonalnie)
+            <textarea id="overallComment" name="overallComment" rows="3" maxlength="1000" placeholder="Najważniejsze spostrzeżenia..."></textarea>
+          </label>
+        </div>
+
+        <button type="submit" id="submitButton">Zapisz odpowiedzi</button>
+        <p id="submitStatus" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Wyniki zbiorcze</h2>
+      <p class="muted">Skala pytań: 1-7, gdzie 1 = bardzo słabo, 7 = bardzo dobrze.</p>
+      <div class="stats" id="statsSummary"></div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Średnie oceny per kryterium</h3>
+          <canvas id="barChart" aria-label="Wykres słupkowy"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Preferencja ogólna</h3>
+          <canvas id="pieChart" aria-label="Wykres preferencji"></canvas>
+        </div>
+      </div>
+      <button id="refreshButton" type="button" class="ghost">Odśwież wykresy</button>
+      <p id="chartStatus" class="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
