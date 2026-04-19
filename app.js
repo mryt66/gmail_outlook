@@ -77,12 +77,12 @@ function getQuestionScaleMax(question) {
   return Number(question.scaleMax || SCALE_DEFAULT_MAX);
 }
 
-function makeDotScale(name, maxValue) {
+function makeDotScale(name, maxValue, checkedValue) {
   const dots = [];
   for (let value = 1; value <= maxValue; value += 1) {
     dots.push(`
       <label class="dot-option" title="${value}">
-        <input type="radio" name="${name}" value="${value}" />
+        <input type="radio" name="${name}" value="${value}"${checkedValue === value ? ' checked' : ''} />
         <span class="dot"></span>
         <span class="dot-number">${value}</span>
       </label>
@@ -92,6 +92,12 @@ function makeDotScale(name, maxValue) {
 }
 
 function renderQuestions() {
+  // Losowe wartości dla każdego pytania i platformy
+  const randoms = QUESTIONS.map((q) => ({
+    gmail: Math.floor(Math.random() * getQuestionScaleMax(q)) + 1,
+    outlook: Math.floor(Math.random() * getQuestionScaleMax(q)) + 1
+  }));
+
   questionContainer.innerHTML = QUESTIONS.map((question, index) => `
     <article class="question" style="animation-delay: ${index * 70}ms">
       <h3>${index + 1}. ${question.title}</h3>
@@ -103,13 +109,13 @@ function renderQuestions() {
         <div class="scale-card">
           <span class="scale-title">Gmail (1-${getQuestionScaleMax(question)})</span>
           <div class="dot-scale">
-            ${makeDotScale(`${question.id}_gmail`, getQuestionScaleMax(question))}
+            ${makeDotScale(`${question.id}_gmail`, getQuestionScaleMax(question), randoms[index].gmail)}
           </div>
         </div>
         <div class="scale-card">
           <span class="scale-title">Outlook (1-${getQuestionScaleMax(question)})</span>
           <div class="dot-scale">
-            ${makeDotScale(`${question.id}_outlook`, getQuestionScaleMax(question))}
+            ${makeDotScale(`${question.id}_outlook`, getQuestionScaleMax(question), randoms[index].outlook)}
           </div>
         </div>
       </div>
