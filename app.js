@@ -41,7 +41,6 @@ const QUESTIONS = [
   }
 ];
 
-const SCALE_VALUES = [1, 2, 3, 4, 5, 6, 7];
 const ONLINE_SAVE_PASSWORD = '123';
 
 const modeBanner = document.getElementById('modeBanner');
@@ -50,8 +49,10 @@ const questionContainer = document.getElementById('questionContainer');
 const submitStatus = document.getElementById('submitStatus');
 const chartStatus = document.getElementById('chartStatus');
 const refreshButton = document.getElementById('refreshButton');
+const pagePassword = document.getElementById('pagePassword');
+const chartGroupSelect = document.getElementById('chartGroupSelect');
 
-const CHART_IDS = ['barChart1', 'barChart2', 'barChart3', 'barChart4'];
+const SCALE_DEFAULT_MAX = 10;
 const CHART_GROUPS = [
   [0, 1],
   [2, 3],
@@ -59,18 +60,35 @@ const CHART_GROUPS = [
   [6, 7]
 ];
 
-let groupedBarCharts = [];
+let groupedBarChart = null;
+let latestAggregate = null;
 
 const appConfig = window.APP_CONFIG || null;
-const hasSupabaseConfig = Boolean(appConfig?.supabaseUrl && appConfig?.supabaseAnonKey);
+const hasSupabaseConfig = Boolean(
+  appConfig?.supabaseUrl
+  && appConfig?.supabaseAnonKey
+  && !appConfig.supabaseUrl.includes('twoj-projekt')
+  && !appConfig.supabaseAnonKey.includes('twoj_anon_key')
+);
 const supabaseClient = hasSupabaseConfig
   ? window.supabase.createClient(appConfig.supabaseUrl, appConfig.supabaseAnonKey)
   : null;
 
-function makeScaleOptions() {
-  return ['<option value="" selected disabled>Wybierz 1-7</option>']
-    .concat(SCALE_VALUES.map((value) => `<option value="${value}">${value}</option>`))
-    .join('');
+function getQuestionScaleMax(question) {
+  return Number(question.scaleMax || SCALE_DEFAULT_MAX);
+}
+
+function makeDotScale(name, maxValue) {
+  const dots = [];
+  for (let value = 1; value <= maxValue; value += 1) {
+    dots.push(`
+      <label class="dot-option" title="${value}">
+        <input type="radio" name="${name}" value="${value}" required />
+        <span class="dot"></span>
+      </label>
+    `);
+  }
+  return dots.join('');
 }
 
 function renderQuestions() {
@@ -82,23 +100,19 @@ function renderQuestions() {
         <p>${question.instruction}</p>
       </details>
       <div class="scale-row">
-        <label>
-          Gmail (1-7)
-          <select name="${question.id}_gmail" required>
-            ${makeScaleOptions()}
-          </select>
-        </label>
-        <label>
-          Outlook (1-7)
-          <select name="${question.id}_outlook" required>
-            ${makeScaleOptions()}
-          </select>
-        </label>
+        <div class="scale-card">
+          <span class="scale-title">Gmail (1-${getQuestionScaleMax(question)})</span>
+          <div class="dot-scale">
+            ${makeDotScale(`${question.id}_gmail`, getQuestionScaleMax(question))}
+          </div>
+        </div>
+        <div class="scale-card">
+          <span class="scale-title">Outlook (1-${getQuestionScaleMax(question)})</span>
+          <div class="dot-scale">
+            ${makeDotScale(`${question.id}_outlook`, getQuestionScaleMax(question))}
+          </div>
+        </div>
       </div>
-      <label>
-        Notatka (opcjonalnie)
-        <textarea name="${question.id}_note" rows="2" maxlength="500" placeholder="Krótka obserwacja do tego kryterium..."></textarea>
-      </label>
     </article>
   `).join('');
 }
@@ -117,12 +131,15 @@ function collectAnswers(formData) {
     title: question.title,
     gmail: Number(formData.get(`${question.id}_gmail`)),
     outlook: Number(formData.get(`${question.id}_outlook`)),
-    note: String(formData.get(`${question.id}_note`) || '').trim()
+    scale_max: getQuestionScaleMax(question)
   }));
 }
 
 function validateAnswers(answers) {
-  return answers.every((answer) => SCALE_VALUES.includes(answer.gmail) && SCALE_VALUES.includes(answer.outlook));
+  return answers.every((answer) => {
+    const max = Number(answer.scale_max || SCALE_DEFAULT_MAX);
+    return answer.gmail >= 1 && answer.gmail <= max && answer.outlook >= 1 && answer.outlook <= max;
+  });
 }
 
 async function saveResponse(record) {
@@ -136,6 +153,7 @@ async function saveResponse(record) {
 
   const payload = {
     participant_name: record.participant_name,
+    experience_level: 'brak',
     answers: record.answers,
     overall_preference: record.overall_preference
   };
@@ -196,53 +214,50 @@ function aggregateData(rows) {
 }
 
 function renderCharts(aggregate) {
-  for (const chart of groupedBarCharts) {
-    chart.destroy();
+  latestAggregate = aggregate;
+  const groupIndex = Number(chartGroupSelect?.value || 0);
+  const group = CHART_GROUPS[groupIndex] || CHART_GROUPS[0];
+  const canvas = document.getElementById('groupedBarChart');
+  if (!canvas) {
+    return;
   }
-  groupedBarCharts = [];
 
-  CHART_GROUPS.forEach((group, index) => {
-    const chartId = CHART_IDS[index];
-    const canvas = document.getElementById(chartId);
-    if (!canvas) {
-      return;
-    }
+  if (groupedBarChart) {
+    groupedBarChart.destroy();
+  }
 
-    const labels = group.map((questionIndex) => aggregate.labels[questionIndex]);
-    const gmailData = group.map((questionIndex) => aggregate.gmailAverages[questionIndex]);
-    const outlookData = group.map((questionIndex) => aggregate.outlookAverages[questionIndex]);
+  const labels = group.map((questionIndex) => `Q${questionIndex + 1}`);
+  const gmailData = group.map((questionIndex) => aggregate.gmailAverages[questionIndex]);
+  const outlookData = group.map((questionIndex) => aggregate.outlookAverages[questionIndex]);
 
-    const chart = new Chart(canvas.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Gmail',
-            data: gmailData,
-            backgroundColor: '#ff6a3d'
-          },
-          {
-            label: 'Outlook',
-            data: outlookData,
-            backgroundColor: '#0d8f8d'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            min: 0,
-            max: 10,
-            ticks: { stepSize: 1 }
-          }
+  groupedBarChart = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Gmail',
+          data: gmailData,
+          backgroundColor: '#ff6a3d'
+        },
+        {
+          label: 'Outlook',
+          data: outlookData,
+          backgroundColor: '#0d8f8d'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          min: 0,
+          max: 10,
+          ticks: { stepSize: 1 }
         }
       }
-    });
-
-    groupedBarCharts.push(chart);
+    }
   });
 }
 
@@ -283,7 +298,7 @@ form.addEventListener('submit', async (event) => {
   const answers = collectAnswers(formData);
 
   if (!validateAnswers(answers)) {
-    submitStatus.textContent = 'Uzupełnij wszystkie oceny 1-7.';
+    submitStatus.textContent = 'Uzupełnij wszystkie oceny w skali 1-10.';
     return;
   }
 
@@ -291,7 +306,7 @@ form.addEventListener('submit', async (event) => {
     participant_name: String(formData.get('participantName') || '').trim(),
     answers,
     overall_preference: String(formData.get('overallPreference') || ''),
-    online_password: String(formData.get('onlinePassword') || ''),
+    online_password: String(pagePassword?.value || ''),
     created_at: new Date().toISOString()
   };
 
@@ -306,6 +321,14 @@ form.addEventListener('submit', async (event) => {
 });
 
 refreshButton.addEventListener('click', refreshCharts);
+
+if (chartGroupSelect) {
+  chartGroupSelect.addEventListener('change', () => {
+    if (latestAggregate) {
+      renderCharts(latestAggregate);
+    }
+  });
+}
 
 renderQuestions();
 setModeBanner();
