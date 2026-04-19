@@ -1,0 +1,266 @@
+:root {
+  --bg: #fff8ef;
+  --ink: #1d1b18;
+  --card: #fffdf9;
+  --line: #eadfce;
+  --accent-a: #ff6a3d;
+  --accent-b: #0d8f8d;
+  --muted: #6c665f;
+  --ok: #0d8f8d;
+  --warn: #b64a2d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 15% 10%, #ffe3cc 0%, transparent 38%),
+    radial-gradient(circle at 85% 90%, #cdeeed 0%, transparent 36%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+.bg-shape {
+  position: fixed;
+  z-index: 0;
+  border-radius: 50%;
+  opacity: 0.2;
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.bg-shape-a {
+  width: 260px;
+  height: 260px;
+  background: var(--accent-a);
+  top: 8%;
+  right: 7%;
+}
+
+.bg-shape-b {
+  width: 320px;
+  height: 320px;
+  background: var(--accent-b);
+  bottom: 4%;
+  left: 2%;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  width: min(1080px, 94%);
+  margin: 2rem auto 4rem;
+}
+
+.hero {
+  animation: fade-up 0.7s ease;
+}
+
+.eyebrow {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-b);
+  font-weight: 700;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  line-height: 1.1;
+  margin: 0.2rem 0 0.8rem;
+}
+
+.lead {
+  max-width: 70ch;
+  margin-top: 0;
+}
+
+.mode-banner {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.card {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.86), rgba(255, 253, 249, 0.98));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(25, 20, 10, 0.08);
+  padding: 1.2rem 1rem;
+  margin-top: 1rem;
+  animation: fade-up 0.6s ease;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  background: #fff;
+}
+
+.question-list {
+  margin: 1.2rem 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.question {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.8rem;
+  background: #fffcf7;
+  animation: reveal 0.5s ease both;
+}
+
+.question h3 {
+  margin: 0 0 0.5rem;
+}
+
+.instructions {
+  margin-bottom: 0.6rem;
+  border-radius: 10px;
+  border: 1px dashed #d4c7b5;
+  padding: 0.4rem 0.7rem;
+  background: #fff;
+}
+
+.instructions summary {
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.86rem;
+}
+
+.instructions p {
+  margin: 0.5rem 0 0.1rem;
+  color: var(--muted);
+}
+
+.scale-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--accent-a), #ef8a47);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(255, 106, 61, 0.3);
+}
+
+button.ghost {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.status {
+  min-height: 1.2rem;
+  color: var(--muted);
+}
+
+.stats {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.5rem 0.7rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.chart-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.8rem;
+  background: #fff;
+}
+
+.chart-card h3 {
+  margin-top: 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 920px) {
+  .grid-two,
+  .scale-row,
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
