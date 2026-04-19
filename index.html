@@ -1,5 +1,43 @@
 <!doctype html>
-    <!-- Sekcja wykresów została usunięta na życzenie użytkownika. -->
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ankieta UX: Gmail vs Outlook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg-shape bg-shape-a"></div>
+  <div class="bg-shape bg-shape-b"></div>
+
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">Badanie interakcji</p>
+      <h1>Gmail vs Outlook</h1>
+      <p class="lead">
+        Wypełnij ankietę na podstawie wykonanych zadań na obu platformach. Dane zapisują się
+        w bazie i zasilają wykresy porównawcze.
+      </p>
+      <div id="modeBanner" class="mode-banner"></div>
+    </header>
+
+    <section class="card">
+      <h2>Dane respondenta</h2>
+      <form id="surveyForm">
+        <div>
+          <label>
+            Pseudonim (opcjonalnie)
+            <input type="text" id="participantName" name="participantName" maxlength="80" placeholder="np. tester_01" />
+          </label>
+        </div>
+
+        <div id="questionContainer" class="question-list"></div>
+
+        <div>
+          <label>
             Którą platformę ogólnie oceniasz lepiej?
             <select id="overallPreference" name="overallPreference" required>
               <option value="" selected disabled>Wybierz</option>
@@ -15,7 +53,45 @@
       </form>
     </section>
 
-    <!-- Sekcja wykresów została usunięta na życzenie użytkownika. -->
+    <section class="card">
+      <h2>Wyniki zbiorcze</h2>
+      <div class="chart-grid chart-grid-2x4">
+        <div class="chart-card mini-chart-card">
+          <h3>Q1</h3>
+          <canvas id="barChartQ1" aria-label="Wykres Q1"></canvas>
+        </div>
+        <div class="chart-card mini-chart-card">
+          <h3>Q2</h3>
+          <canvas id="barChartQ2" aria-label="Wykres Q2"></canvas>
+        </div>
+        <div class="chart-card mini-chart-card">
+          <h3>Q3</h3>
+          <canvas id="barChartQ3" aria-label="Wykres Q3"></canvas>
+        </div>
+        <div class="chart-card mini-chart-card">
+          <h3>Q4</h3>
+          <canvas id="barChartQ4" aria-label="Wykres Q4"></canvas>
+        </div>
+        <div class="chart-card mini-chart-card">
+          <h3>Q5</h3>
+          <canvas id="barChartQ5" aria-label="Wykres Q5"></canvas>
+        </div>
+        <div class="chart-card mini-chart-card">
+          <h3>Q6</h3>
+          <canvas id="barChartQ6" aria-label="Wykres Q6"></canvas>
+        </div>
+        <div class="chart-card mini-chart-card">
+          <h3>Q7</h3>
+          <canvas id="barChartQ7" aria-label="Wykres Q7"></canvas>
+        </div>
+        <div class="chart-card mini-chart-card">
+          <h3>Q8</h3>
+          <canvas id="barChartQ8" aria-label="Wykres Q8"></canvas>
+        </div>
+      </div>
+      <button id="refreshButton" type="button" class="ghost">Odśwież wykresy</button>
+      <p id="chartStatus" class="status" aria-live="polite"></p>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
