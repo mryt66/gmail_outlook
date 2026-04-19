@@ -42,7 +42,7 @@ const QUESTIONS = [
 ];
 
 const SCALE_VALUES = [1, 2, 3, 4, 5, 6, 7];
-const LOCAL_STORAGE_KEY = 'gmail-outlook-survey-responses';
+const ONLINE_SAVE_PASSWORD = '123';
 
 const modeBanner = document.getElementById('modeBanner');
 const form = document.getElementById('surveyForm');
@@ -105,10 +105,10 @@ function renderQuestions() {
 
 function setModeBanner() {
   if (hasSupabaseConfig) {
-    modeBanner.textContent = 'Tryb zapisu: Supabase (online).';
+    modeBanner.textContent = 'Tryb zapisu: Supabase (online) z hasłem.';
     return;
   }
-  modeBanner.textContent = 'Tryb zapisu: lokalny (brak config.js). Wypełnij config.js, aby zapisywać online.';
+  modeBanner.textContent = 'Tryb zapisu online niedostępny. Uzupełnij config.js.';
 }
 
 function collectAnswers(formData) {
@@ -125,36 +125,19 @@ function validateAnswers(answers) {
   return answers.every((answer) => SCALE_VALUES.includes(answer.gmail) && SCALE_VALUES.includes(answer.outlook));
 }
 
-function loadLocalResponses() {
-  const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (!raw) {
-    return [];
-  }
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-function saveLocalResponse(record) {
-  const existing = loadLocalResponses();
-  existing.push(record);
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(existing));
-}
-
 async function saveResponse(record) {
   if (!hasSupabaseConfig) {
-    saveLocalResponse(record);
-    return;
+    throw new Error('Brak konfiguracji Supabase. Uzupełnij config.js.');
+  }
+
+  if (record.online_password !== ONLINE_SAVE_PASSWORD) {
+    throw new Error('Błędne hasło zapisu online.');
   }
 
   const payload = {
     participant_name: record.participant_name,
-    experience_level: record.experience_level,
     answers: record.answers,
-    overall_preference: record.overall_preference,
-    overall_comment: record.overall_comment
+    overall_preference: record.overall_preference
   };
 
   const { error } = await supabaseClient.from('survey_responses').insert(payload);
@@ -265,7 +248,7 @@ function renderCharts(aggregate) {
 
 async function fetchRows() {
   if (!hasSupabaseConfig) {
-    return loadLocalResponses();
+    return [];
   }
 
   const { data, error } = await supabaseClient
@@ -306,10 +289,9 @@ form.addEventListener('submit', async (event) => {
 
   const record = {
     participant_name: String(formData.get('participantName') || '').trim(),
-    experience_level: String(formData.get('experienceLevel') || ''),
     answers,
     overall_preference: String(formData.get('overallPreference') || ''),
-    overall_comment: String(formData.get('overallComment') || '').trim(),
+    online_password: String(formData.get('onlinePassword') || ''),
     created_at: new Date().toISOString()
   };
 
