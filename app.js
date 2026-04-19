@@ -77,12 +77,12 @@ function getQuestionScaleMax(question) {
   return Number(question.scaleMax || SCALE_DEFAULT_MAX);
 }
 
-function makeDotScale(name, maxValue) {
+function makeDotScale(name, maxValue, checkedValue) {
   const dots = [];
   for (let value = 1; value <= maxValue; value += 1) {
     dots.push(`
       <label class="dot-option" title="${value}">
-        <input type="radio" name="${name}" value="${value}" required />
+        <input type="radio" name="${name}" value="${value}"${checkedValue === value ? ' checked' : ''} />
         <span class="dot"></span>
         <span class="dot-number">${value}</span>
       </label>
@@ -92,6 +92,12 @@ function makeDotScale(name, maxValue) {
 }
 
 function renderQuestions() {
+  // Losowe wartości dla każdego pytania i platformy
+  const randoms = QUESTIONS.map((q) => ({
+    gmail: Math.floor(Math.random() * getQuestionScaleMax(q)) + 1,
+    outlook: Math.floor(Math.random() * getQuestionScaleMax(q)) + 1
+  }));
+
   questionContainer.innerHTML = QUESTIONS.map((question, index) => `
     <article class="question" style="animation-delay: ${index * 70}ms">
       <h3>${index + 1}. ${question.title}</h3>
@@ -103,13 +109,13 @@ function renderQuestions() {
         <div class="scale-card">
           <span class="scale-title">Gmail (1-${getQuestionScaleMax(question)})</span>
           <div class="dot-scale">
-            ${makeDotScale(`${question.id}_gmail`, getQuestionScaleMax(question))}
+            ${makeDotScale(`${question.id}_gmail`, getQuestionScaleMax(question), randoms[index].gmail)}
           </div>
         </div>
         <div class="scale-card">
           <span class="scale-title">Outlook (1-${getQuestionScaleMax(question)})</span>
           <div class="dot-scale">
-            ${makeDotScale(`${question.id}_outlook`, getQuestionScaleMax(question))}
+            ${makeDotScale(`${question.id}_outlook`, getQuestionScaleMax(question), randoms[index].outlook)}
           </div>
         </div>
       </div>
@@ -126,20 +132,39 @@ function setModeBanner() {
 }
 
 function collectAnswers(formData) {
-  return QUESTIONS.map((question) => ({
-    id: question.id,
-    title: question.title,
-    gmail: Number(formData.get(`${question.id}_gmail`)),
-    outlook: Number(formData.get(`${question.id}_outlook`)),
-    scale_max: getQuestionScaleMax(question)
-  }));
+  const answers = [];
+
+  for (const question of QUESTIONS) {
+    const gmailRaw = formData.get(`${question.id}_gmail`);
+    const outlookRaw = formData.get(`${question.id}_outlook`);
+    const gmail = gmailRaw === null ? NaN : Number(gmailRaw);
+    const outlook = outlookRaw === null ? NaN : Number(outlookRaw);
+    const scaleMax = getQuestionScaleMax(question);
+    const valid = Number.isFinite(gmail)
+      && Number.isFinite(outlook)
+      && gmail >= 1
+      && gmail <= scaleMax
+      && outlook >= 1
+      && outlook <= scaleMax;
+
+    if (!valid) {
+      continue;
+    }
+
+    answers.push({
+      id: question.id,
+      title: question.title,
+      gmail,
+      outlook,
+      scale_max: scaleMax
+    });
+  }
+
+  return answers;
 }
 
 function validateAnswers(answers) {
-  return answers.every((answer) => {
-    const max = Number(answer.scale_max || SCALE_DEFAULT_MAX);
-    return answer.gmail >= 1 && answer.gmail <= max && answer.outlook >= 1 && answer.outlook <= max;
-  });
+  return answers.length > 0;
 }
 
 async function saveResponse(record) {
@@ -290,7 +315,7 @@ form.addEventListener('submit', async (event) => {
   const answers = collectAnswers(formData);
 
   if (!validateAnswers(answers)) {
-    submitStatus.textContent = 'Uzupełnij wszystkie oceny w skali 1-10.';
+    submitStatus.textContent = 'Uzupelnij przynajmniej jedno pytanie (Gmail i Outlook).';
     return;
   }
 
