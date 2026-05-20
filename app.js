@@ -169,9 +169,12 @@ async function saveResponse(record) {
   const payload = {
     participant_name: record.participant_name,
     experience_level: 'brak',
-    answers: record.answers,
     overall_preference: record.overall_preference
   };
+  for (const a of record.answers) {
+    payload[`${a.id}_gmail`] = a.gmail;
+    payload[`${a.id}_outlook`] = a.outlook;
+  }
 
   const { error } = await supabaseClient.from('survey_responses').insert(payload);
   if (error) {
@@ -188,20 +191,15 @@ function aggregateData(rows) {
   const preference = { gmail: 0, outlook: 0, remis: 0 };
 
   for (const row of rows) {
-    const answers = Array.isArray(row.answers) ? row.answers : [];
-
-    for (const answer of answers) {
-      if (!totals[answer.id]) {
-        continue;
-      }
-      const gmail = Number(answer.gmail);
-      const outlook = Number(answer.outlook);
+    for (const question of QUESTIONS) {
+      const gmail = Number(row[`${question.id}_gmail`]);
+      const outlook = Number(row[`${question.id}_outlook`]);
       if (!Number.isFinite(gmail) || !Number.isFinite(outlook)) {
         continue;
       }
-      totals[answer.id].gmailSum += gmail;
-      totals[answer.id].outlookSum += outlook;
-      totals[answer.id].count += 1;
+      totals[question.id].gmailSum += gmail;
+      totals[question.id].outlookSum += outlook;
+      totals[question.id].count += 1;
     }
 
     if (row.overall_preference === 'gmail') {
@@ -277,9 +275,16 @@ async function fetchRows() {
     return [];
   }
 
+  const cols = [
+    'q1_gmail','q1_outlook','q2_gmail','q2_outlook',
+    'q3_gmail','q3_outlook','q4_gmail','q4_outlook',
+    'q5_gmail','q5_outlook','q6_gmail','q6_outlook',
+    'q7_gmail','q7_outlook','q8_gmail','q8_outlook',
+    'overall_preference'
+  ].join(',');
   const { data, error } = await supabaseClient
     .from('survey_responses')
-    .select('answers, overall_preference')
+    .select(cols)
     .order('created_at', { ascending: false });
 
   if (error) {
