@@ -55,9 +55,14 @@ const hasSupabaseConfig = Boolean(
   && !appConfig.supabaseUrl.includes('twoj-projekt')
   && !appConfig.supabaseAnonKey.includes('twoj_anon_key')
 );
-const supabaseClient = hasSupabaseConfig
-  ? window.supabase.createClient(appConfig.supabaseUrl, appConfig.supabaseAnonKey)
-  : null;
+let supabaseClient = null;
+if (hasSupabaseConfig) {
+  try {
+    supabaseClient = window.supabase.createClient(appConfig.supabaseUrl, appConfig.supabaseAnonKey);
+  } catch (_) {
+    supabaseClient = null;
+  }
+}
 
 function getQuestionScaleMax(question) {
   return Number(question.scaleMax || SCALE_DEFAULT_MAX);
