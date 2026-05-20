@@ -45,22 +45,8 @@ const modeBanner = document.getElementById('modeBanner');
 const form = document.getElementById('surveyForm');
 const questionContainer = document.getElementById('questionContainer');
 const submitStatus = document.getElementById('submitStatus');
-const chartStatus = document.getElementById('chartStatus');
-const refreshButton = document.getElementById('refreshButton');
 
 const SCALE_DEFAULT_MAX = 10;
-const CHART_CANVAS_IDS = [
-  'barChartQ1',
-  'barChartQ2',
-  'barChartQ3',
-  'barChartQ4',
-  'barChartQ5',
-  'barChartQ6',
-  'barChartQ7',
-  'barChartQ8'
-];
-
-let chartInstances = [];
 
 const appConfig = window.APP_CONFIG || null;
 const hasSupabaseConfig = Boolean(
@@ -182,130 +168,6 @@ async function saveResponse(record) {
   }
 }
 
-function aggregateData(rows) {
-  const totals = QUESTIONS.reduce((acc, question) => {
-    acc[question.id] = { gmailSum: 0, outlookSum: 0, count: 0 };
-    return acc;
-  }, {});
-
-  const preference = { gmail: 0, outlook: 0, remis: 0 };
-
-  for (const row of rows) {
-    for (const question of QUESTIONS) {
-      const gmail = Number(row[`${question.id}_gmail`]);
-      const outlook = Number(row[`${question.id}_outlook`]);
-      if (!Number.isFinite(gmail) || !Number.isFinite(outlook)) {
-        continue;
-      }
-      totals[question.id].gmailSum += gmail;
-      totals[question.id].outlookSum += outlook;
-      totals[question.id].count += 1;
-    }
-
-    if (row.overall_preference === 'gmail') {
-      preference.gmail += 1;
-    }
-    if (row.overall_preference === 'outlook') {
-      preference.outlook += 1;
-    }
-    if (row.overall_preference === 'remis') {
-      preference.remis += 1;
-    }
-  }
-
-  const labels = QUESTIONS.map((item) => item.title);
-  const gmailAverages = QUESTIONS.map((item) => {
-    const t = totals[item.id];
-    return t.count ? Number((t.gmailSum / t.count).toFixed(2)) : 0;
-  });
-  const outlookAverages = QUESTIONS.map((item) => {
-    const t = totals[item.id];
-    return t.count ? Number((t.outlookSum / t.count).toFixed(2)) : 0;
-  });
-
-  return { labels, gmailAverages, outlookAverages, preference };
-}
-
-function renderCharts(aggregate) {
-  for (const chart of chartInstances) {
-    chart.destroy();
-  }
-  chartInstances = [];
-
-  CHART_CANVAS_IDS.forEach((canvasId, index) => {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) {
-      return;
-    }
-
-    const chart = new Chart(canvas.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: ['Gmail', 'Outlook'],
-        datasets: [
-          {
-            label: `Q${index + 1}`,
-            data: [aggregate.gmailAverages[index], aggregate.outlookAverages[index]],
-            backgroundColor: ['#ff6a3d', '#0d8f8d']
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: {
-            min: 0,
-            max: 10,
-            ticks: { stepSize: 1 }
-          }
-        }
-      }
-    });
-
-    chartInstances.push(chart);
-  });
-}
-
-async function fetchRows() {
-  if (!hasSupabaseConfig) {
-    return [];
-  }
-
-  const cols = [
-    'q1_gmail','q1_outlook','q2_gmail','q2_outlook',
-    'q3_gmail','q3_outlook','q4_gmail','q4_outlook',
-    'q5_gmail','q5_outlook','q6_gmail','q6_outlook',
-    'q7_gmail','q7_outlook','q8_gmail','q8_outlook',
-    'overall_preference'
-  ].join(',');
-  const { data, error } = await supabaseClient
-    .from('survey_responses')
-    .select(cols)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    throw new Error(error.message || 'Nie udało się pobrać danych.');
-  }
-
-  return data || [];
-}
-
-async function refreshCharts() {
-  chartStatus.textContent = 'Pobieram dane do wykresów...';
-  try {
-    const rows = await fetchRows();
-    const aggregate = aggregateData(rows);
-    renderCharts(aggregate);
-    chartStatus.textContent = `Wykresy zaktualizowane. Odpowiedzi: ${rows.length}.`;
-  } catch (error) {
-    chartStatus.textContent = `Błąd wykresów: ${error.message}`;
-  }
-}
-
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   submitStatus.textContent = 'Zapisuję odpowiedzi...';
@@ -329,14 +191,10 @@ form.addEventListener('submit', async (event) => {
     await saveResponse(record);
     form.reset();
     submitStatus.textContent = 'Odpowiedzi zostały zapisane.';
-    await refreshCharts();
   } catch (error) {
     submitStatus.textContent = `Błąd zapisu: ${error.message}`;
   }
 });
 
-refreshButton.addEventListener('click', refreshCharts);
-
 renderQuestions();
 setModeBanner();
-refreshCharts();
