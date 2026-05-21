@@ -1,6 +1,21 @@
-*.md
+# env
 .env
+
+# generated config
+src/config.js
 config.js
-!config.example.js
+
+# python
 .venv/
-.venv
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# node
+node_modules/
+
+# build
+dist/
+
+# os
+.DS_Store

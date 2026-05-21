@@ -1,8 +1,9 @@
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 
 const root = process.cwd();
+const srcDir = join(root, 'src');
 const distDir = join(root, 'dist');
 
 rmSync(distDir, { recursive: true, force: true });
@@ -15,16 +16,19 @@ const filesToCopy = [
   'index.html',
   'styles.css',
   'app.js',
-  'config.js',
   'config.example.js'
 ];
 
 for (const file of filesToCopy) {
-  const source = join(root, file);
+  const source = join(srcDir, file);
   if (!existsSync(source)) {
+    console.warn(`Warning: ${source} not found, skipping`);
     continue;
   }
   cpSync(source, join(distDir, file), { force: true });
 }
+
+// copy config.js from src (generated from .env)
+cpSync(join(srcDir, 'config.js'), join(distDir, 'config.js'), { force: true });
 
 writeFileSync(join(distDir, '.nojekyll'), '');

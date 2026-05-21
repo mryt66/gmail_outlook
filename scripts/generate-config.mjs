@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 const root = process.cwd();
 const envPath = join(root, '.env');
-const outPath = join(root, 'config.js');
+const outPath = join(root, 'src', 'config.js');
 
 if (!existsSync(envPath)) {
   console.error('.env not found – creating config.js from config.example.js');

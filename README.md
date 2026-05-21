@@ -46,7 +46,9 @@ Na podstawie wyników formułowane są rekomendacje dotyczące poprawy interfejs
 ### Lokalnie
 
 ```bash
-npx serve .
+cp .env.example .env   # wypełnij dane Supabase
+npm run config          # generuje src/config.js z .env
+npx serve src/
 ```
 
 Otwórz `http://localhost:3000`.
@@ -55,18 +57,26 @@ Otwórz `http://localhost:3000`.
 
 1. Załóż projekt w [Supabase](https://supabase.com)
 2. W SQL Editor uruchom `sql/supabase_schema.sql`
-3. Skopiuj `config.example.js` do `config.js` i wpisz URL projektu oraz anon key
-4. Bez konfiguracji aplikacja działa w trybie offline (localStorage)
+3. Wypełnij `.env` danymi projektu
+4. Uruchom `npm run config` — wygeneruje `src/config.js`
+
+### Notebook
+
+```bash
+uv sync
+uv run jupyter notebook notebooks/analysis.ipynb
+```
 
 ### Deploy na GitHub Pages
 
-Wypchnij na `main` — GitHub Actions automatycznie zbuduje i wdroży `dist/` na Pages.
+Wypchnij na `main` — GitHub Actions zbuduje i wdroży `dist/` na Pages.
 
 ## Struktura projektu
 
-- `index.html` — UI ankiety
-- `app.js` — logika pytań, zapis odpowiedzi
-- `styles.css` — styl i layout
-- `config.js` — konfiguracja Supabase (pominięty w git)
-- `sql/supabase_schema.sql` — schema bazy danych
+- `src/` — kod źródłowy aplikacji webowej (HTML, CSS, JS)
+- `notebooks/` — analiza danych (Jupyter)
+- `scripts/` — narzędzia build (Node.js)
+- `sql/` — schemat bazy Supabase
+- `pyproject.toml` — zależności Python (uv)
+- `.env` — konfiguracja Supabase (gitignored)
 - `.github/workflows/deploy-pages.yml` — workflow deploy

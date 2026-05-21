@@ -1,0 +1,18 @@
+[project]
+name = "gmail-outlook-survey"
+version = "1.0.0"
+description = "Survey comparing Gmail vs Outlook UX"
+requires-python = ">=3.11"
+dependencies = [
+    "supabase>=2.0.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
+    "python-dotenv>=1.0.0",
+    "jupyter>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = []
+
+[tool.uv]
+dev-dependencies = []
