@@ -1,88 +1,72 @@
 # Ankieta UX: Gmail vs Outlook
 
-Statyczna aplikacja ankietowa do porównania interakcji w Gmail i Outlook, z:
-- sekcją instrukcji do każdego pytania,
-- zapisem odpowiedzi,
-- automatycznymi wykresami zbiorczymi.
+Badanie porównawcze interakcji użytkownika na platformach Gmail i Outlook.
 
-Aplikacja działa jako czysty frontend (HTML/CSS/JS), więc można ją hostować zarówno na Vercel, jak i GitHub Pages.
+## Metodologia badania
 
-## Struktura
+### 1. Określenie wzorcowych elementów interakcji
 
-- `index.html` - UI ankiety i sekcja wyników
-- `styles.css` - styl i responsywny layout
-- `app.js` - logika pytań, zapis odpowiedzi, agregacje i wykresy
-- `config.example.js` - wzór konfiguracji połączenia
-- `sql/supabase_schema.sql` - schema + polityki RLS dla Supabase
+Zdefiniowano 8 kluczowych kryteriów oceny:
+- Łatwość rozpoczęcia pracy
+- Czytelność nawigacji i układu
+- Wyszukiwanie i filtrowanie wiadomości
+- Tworzenie i edycja wiadomości
+- Zarządzanie skrzynką
+- Widoczność statusu i informacji zwrotnej
+- Wydajność i szybkość interakcji
+- Ogólna satysfakcja z doświadczenia
 
-## 1) Konfiguracja zapisu danych (Supabase)
+### 2. Przegląd kandydatów do ewaluacji
 
-1. Załóż projekt w Supabase.
-2. Wejdź do SQL Editor i uruchom zawartość pliku:
-   - `sql/supabase_schema.sql`
-3. Pobierz z Supabase:
-   - Project URL
-   - anon public key
-4. Utwórz lokalnie plik `config.js` na podstawie `config.example.js` i wpisz wartości:
+Do badania rekrutowana jest grupa użytkowników o różnym poziomie zaawansowania (początkujący, średniozaawansowani, zaawansowani). Każdy uczestnik wykonuje zestaw zadań na obu platformach.
 
-```js
-window.APP_CONFIG = {
-  supabaseUrl: 'https://TWOJ-PROJEKT.supabase.co',
-  supabaseAnonKey: 'TWOJ_PUBLICZNY_ANON_KEY'
-};
+### 3. Schemat badania
+
+- **Zadania**: uczestnicy otrzymują listę czynności do wykonania (np. "znajdź wiadomość od X", "utwórz nową wiadomość z załącznikiem", "oznacz etykietą/folderem")
+- **Pomiar czasu**: mierzony jest czas wykonania każdego zadania na każdej platformie
+- **Ocena subiektywna**: po każdym zadaniu uczestnik ocenia platformę w skali 1-10
+- **Preferencja końcowa**: po wykonaniu wszystkich zadań uczestnik wskazuje ogólnie lepszą platformę
+
+### 4. Przeprowadzenie analizy
+
+Uczestnicy wykonują zadania samodzielnie, a ich odpowiedzi są zapisywane w bazie Supabase. Dane zbierane są anonimowo (opcjonalny pseudonim).
+
+### 5. Wyniki
+
+Dane są agregowane i prezentowane na wykresach porównawczych (średnie ocen Gmail vs Outlook dla każdego kryterium, rozkład preferencji końcowej).
+
+### 6. Wnioski i ulepszenia
+
+Na podstawie wyników formułowane są rekomendacje dotyczące poprawy interfejsu i interakcji dla każdej z platform.
+
+---
+
+## Uruchomienie
+
+### Lokalnie
+
+```bash
+npx serve .
 ```
 
-Uwaga: `config.js` jest w `.gitignore`, więc nie wycieknie do repo.
+Otwórz `http://localhost:3000`.
 
-## 2) Tryb lokalny bez bazy
+### Konfiguracja bazy (Supabase)
 
-Jeśli `config.js` nie jest skonfigurowany, aplikacja przechodzi w tryb lokalny i zapisuje dane do `localStorage` przeglądarki.
+1. Załóż projekt w [Supabase](https://supabase.com)
+2. W SQL Editor uruchom `sql/supabase_schema.sql`
+3. Skopiuj `config.example.js` do `config.js` i wpisz URL projektu oraz anon key
+4. Bez konfiguracji aplikacja działa w trybie offline (localStorage)
 
-## 3) Uruchomienie lokalne
+### Deploy na GitHub Pages
 
-Wystarczy otworzyć `index.html` lub postawić prosty serwer statyczny, np. przez VS Code Live Server.
+Wypchnij na `main` — GitHub Actions automatycznie zbuduje i wdroży `dist/` na Pages.
 
-## 4) Deploy na Vercel
+## Struktura projektu
 
-1. Wypchnij repo do GitHub.
-2. W Vercel kliknij `Add New -> Project` i wybierz repo.
-3. Framework preset: `Other`.
-4. Build command: puste.
-5. Output directory: `.`
-6. Deploy.
-
-### Konfiguracja `config.js` na Vercel
-
-Masz dwie opcje:
-
-1. Commitować publiczny `config.js` (URL + anon key) i usunąć go z `.gitignore`.
-2. Dodać osobny etap build, który generuje `config.js` z env varów.
-
-Dla prostoty w statycznych ankietach zwykle wybiera się opcję 1 (anon key jest publiczny).
-
-## 5) Deploy na GitHub Pages
-
-Workflow jest gotowy w:
-- `.github/workflows/deploy-pages.yml`
-
-Kroki:
-1. W repo na GitHub wejdź: `Settings -> Pages`.
-2. Source ustaw na `GitHub Actions`.
-3. Wypchnij branch `main`.
-4. Po zakończeniu workflow strona będzie dostępna pod adresem `https://<user>.github.io/<repo>/`.
-
-### Konfiguracja `config.js` na GitHub Pages
-
-Tak samo jak w Vercel: klucz anon jest publiczny, więc możesz commitować `config.js` z danymi Supabase.
-
-## 6) Jak czytać wyniki
-
-- Wykres słupkowy: średnie oceny Gmail vs Outlook dla każdego kryterium.
-- Wykres kołowy: rozkład preferencji końcowej (Gmail / Outlook / Remis).
-- Kafelki podsumowania: liczba odpowiedzi i średnie globalne.
-
-## Dalsze rozszerzenia
-
-- filtrowanie wyników po poziomie zaawansowania,
-- eksport CSV,
-- osobny panel admina z komentarzami jakościowymi.
+- `index.html` — UI ankiety
+- `app.js` — logika pytań, zapis odpowiedzi
+- `styles.css` — styl i layout
+- `config.js` — konfiguracja Supabase (pominięty w git)
+- `sql/supabase_schema.sql` — schema bazy danych
+- `.github/workflows/deploy-pages.yml` — workflow deploy
