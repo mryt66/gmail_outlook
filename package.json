@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "node ./scripts/build.mjs",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "config": "node ./scripts/generate-config.mjs"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0"

@@ -1,1 +1,4 @@
 *.md
+.env
+config.js
+!config.example.js
