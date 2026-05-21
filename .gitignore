@@ -20,3 +20,6 @@ dist/
 
 # os
 .DS_Store
+
+GITHUB_PAGES_DEPLOY.md
+test-supabase-connection.mjs
