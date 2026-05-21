@@ -6,8 +6,13 @@ const envPath = join(root, '.env');
 const outPath = join(root, 'src', 'config.js');
 
 if (!existsSync(envPath)) {
-  console.error('.env not found – creating config.js from config.example.js');
-  const example = readFileSync(join(root, 'config.example.js'), 'utf-8');
+  const examplePath = join(root, 'src', 'config.example.js');
+  if (!existsSync(examplePath)) {
+    console.error('.env and config.example.js not found');
+    process.exit(1);
+  }
+  console.log('.env not found – creating config.js from config.example.js');
+  const example = readFileSync(examplePath, 'utf-8');
   writeFileSync(outPath, example);
   process.exit(0);
 }
