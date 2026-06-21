@@ -13,9 +13,11 @@ mkdirSync(distDir, { recursive: true });
 execSync('node scripts/generate-config.mjs', { cwd: root, stdio: 'inherit' });
 
 const filesToCopy = [
-  'index.html',
+  'ankieta.html',
+  'analiza.html',
   'styles.css',
   'app.js',
+  'analysis.js',
   'config.example.js'
 ];
 

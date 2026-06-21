@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analiza wyników: Gmail vs Outlook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg-shape bg-shape-a"></div>
+  <div class="bg-shape bg-shape-b"></div>
+
+  <nav class="topnav">
+    <a href="./ankieta.html" class="topnav-link">Ankieta</a>
+    <a href="./analiza.html" class="topnav-link active">Analiza</a>
+  </nav>
+
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">Badanie interakcji</p>
+      <h1>Analiza wyników</h1>
+      <p class="lead">
+        Porównanie ocen Gmail vs Outlook na podstawie danych z bazy Supabase.
+      </p>
+    </header>
+
+    <section class="card">
+      <div class="analysis-header">
+        <h2>Wyniki</h2>
+        <button id="refreshBtn" class="ghost" type="button">Odśwież dane</button>
+      </div>
+      <p class="muted" id="analysisStatus">Ładowanie danych z bazy...</p>
+
+      <div id="statsContainer" class="stats" style="display:none;"></div>
+
+      <h3>Porównanie średnich ocen</h3>
+      <div class="chart-card">
+        <canvas id="chartComparison"></canvas>
+      </div>
+
+      <h3>Średnie ocen per pytanie</h3>
+      <div class="chart-grid">
+        <div class="chart-card"><canvas id="chartQ1"></canvas></div>
+        <div class="chart-card"><canvas id="chartQ2"></canvas></div>
+        <div class="chart-card"><canvas id="chartQ3"></canvas></div>
+        <div class="chart-card"><canvas id="chartQ4"></canvas></div>
+        <div class="chart-card"><canvas id="chartQ5"></canvas></div>
+        <div class="chart-card"><canvas id="chartQ6"></canvas></div>
+        <div class="chart-card"><canvas id="chartQ7"></canvas></div>
+        <div class="chart-card"><canvas id="chartQ8"></canvas></div>
+      </div>
+
+      <h3>Preferencja końcowa</h3>
+      <div class="chart-grid-2x4">
+        <div class="grid-two">
+          <div class="chart-card"><canvas id="chartPrefBar"></canvas></div>
+          <div class="chart-card"><canvas id="chartPrefPie"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="./config.js"></script>
+  <script src="./analysis.js"></script>
+</body>
+</html>
