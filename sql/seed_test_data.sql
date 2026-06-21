@@ -1,6 +1,6 @@
 -- Seed: Remove old data and insert new test data
 -- Distribution: 15 complete, 3 half (Q1-Q4), 4 partial (Q1-Q3)
--- Age groups: 0-14, 15-25, 26-35, 36-44, 45-60, 60+
+-- Age groups: 15-25, 26-35, 36-44, 45-60
 
 DELETE FROM public.survey_responses;
 
@@ -17,19 +17,19 @@ INSERT INTO public.survey_responses (participant_name, age, experience_level, ov
 ('kuba_p', 29, 'sredniozaawansowany', 'gmail', 'Outlook lepszy do pracy biurowej.', 8, 5, 8, 7, 7, 6, 8, 9, 5, 7, 4, 8, 10, 9, 10, 9),
 ('martyna_r', 22, 'poczatkujacy', 'gmail', 'Po dłuższym użytkowaniu nie widzę dużej różnicy.', 10, 7, 6, 5, 7, 6, 9, 6, 8, 6, 9, 6, 9, 5, 9, 6),
 ('lukasz_b', 41, 'zaawansowany', 'gmail', 'Outlook lepszy do pracy biurowej.', 7, 4, 7, 7, 7, 4, 7, 6, 7, 4, 10, 9, 4, 7, 8, 5),
-('natalia_s', 63, 'zaawansowany', 'outlook', '', 7, 7, 8, 7, 8, 9, 7, 10, 4, 7, 3, 9, 6, 9, 5, 8),
+('natalia_s', 55, 'zaawansowany', 'outlook', '', 7, 7, 8, 7, 8, 9, 7, 10, 4, 7, 3, 9, 6, 9, 5, 8),
 ('adam_m', 24, 'poczatkujacy', 'outlook', '', 3, 7, 6, 7, 7, 5, 2, 6, 4, 7, 6, 8, 7, 6, 7, 5),
 ('ola_w', 37, 'sredniozaawansowany', 'outlook', 'Wolę Gmail, ale Outlook ma lepszy kalendarz.', 6, 5, 7, 7, 7, 10, 5, 9, 5, 9, 7, 9, 6, 6, 6, 6),
 ('grzesiek_k', 58, 'zaawansowany', 'outlook', 'Obie platformy są podobne, ale Gmail wygrywa szybkością.', 6, 9, 5, 7, 4, 6, 2, 5, 7, 7, 7, 9, 4, 6, 4, 8),
 ('patrycja_t', 44, 'zaawansowany', 'gmail', 'Gmail jest bardziej intuicyjny.', 7, 4, 7, 8, 7, 4, 7, 7, 7, 6, 8, 7, 9, 5, 9, 7),
 
 -- === 3 HALF (Q1-Q4 only) ===
-('michal_m', 12, 'brak', 'gmail', 'Łatwiejszy w obsłudze.', 7, 5, 7, 4, 6, 5, 6, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-('aga_f', 67, 'zaawansowany', 'outlook', 'Przyzwyczajenie do Outlooka.', 5, 8, 5, 8, 4, 7, 5, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+('michal_m', 18, 'brak', 'gmail', 'Łatwiejszy w obsłudze.', 7, 5, 7, 4, 6, 5, 6, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+('aga_f', 48, 'zaawansowany', 'outlook', 'Przyzwyczajenie do Outlooka.', 5, 8, 5, 8, 4, 7, 5, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 ('rafal_d', 52, 'sredniozaawansowany', 'gmail', 'Gmail ma lepsze wyszukiwanie.', 7, 4, 5, 7, 8, 6, 7, 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 
 -- === 4 PARTIAL (Q1-Q3 only) ===
 ('dorota_c', 39, 'sredniozaawansowany', 'outlook', 'Outlook lepszy do pracy biurowej.', 3, 6, 5, 8, 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 ('bartek_j', 16, 'poczatkujacy', 'gmail', 'Gmail prostszy dla młodych.', 7, 4, 8, 5, 8, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 ('szymon_h', 25, 'poczatkujacy', 'gmail', 'Trudno ocenić po krótkim teście.', 7, 5, 8, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-('weronika_k', 72, 'zaawansowany', 'outlook', 'Outlook stabilniejszy.', 4, 8, 3, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+('weronika_k', 47, 'zaawansowany', 'outlook', 'Outlook stabilniejszy.', 4, 8, 3, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);

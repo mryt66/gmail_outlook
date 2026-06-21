@@ -15,15 +15,13 @@ const CHART_COLORS = {
   tie: '#999999'
 };
 
-const AGE_GROUP_COLORS = ['#4e79a7', '#59a14f', '#edc948', '#f28e2b', '#e15759', '#b07aa1'];
+const AGE_GROUP_COLORS = ['#4e79a7', '#59a14f', '#edc948', '#f28e2b', '#e15759'];
 
 const AGE_GROUPS = [
-  { label: '0–14', min: 0, max: 14 },
   { label: '15–25', min: 15, max: 25 },
   { label: '26–35', min: 26, max: 35 },
   { label: '36–44', min: 36, max: 44 },
-  { label: '45–60', min: 45, max: 60 },
-  { label: '60+', min: 61, max: 200 }
+  { label: '45–60', min: 45, max: 60 }
 ];
 
 const appConfig = window.APP_CONFIG || null;
