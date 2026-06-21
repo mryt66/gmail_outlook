@@ -84,6 +84,50 @@ h1 {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.9rem;
   color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.2rem 0 0;
+}
+
+.tab {
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.tab:hover {
+  background: rgba(13, 143, 141, 0.08);
+  color: var(--ink);
+}
+
+.tab.active {
+  background: var(--accent-b);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(13, 143, 141, 0.25);
+}
+
+.tab.active:hover {
+  transform: translateY(-1px);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fade-up 0.4s ease;
 }
 
 .card {
@@ -98,6 +142,11 @@ h1 {
 
 .card h2 {
   margin-top: 0;
+}
+
+.card h3 {
+  margin-top: 1.4rem;
+  margin-bottom: 0.4rem;
 }
 
 .grid-two {
@@ -286,6 +335,10 @@ button.ghost {
   min-height: 260px;
 }
 
+.chart-card canvas {
+  max-height: 220px;
+}
+
 .mini-chart-card {
   min-height: 240px;
 }
@@ -332,5 +385,12 @@ button.ghost {
 @media (max-width: 620px) {
   .chart-grid {
     grid-template-columns: 1fr;
+  }
+  .tabs {
+    gap: 0.3rem;
+  }
+  .tab {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.88rem;
   }
 }
