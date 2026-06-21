@@ -18,28 +18,21 @@ Zdefiniowano 8 kluczowych kryteriów oceny:
 
 ### 2. Przegląd kandydatów do ewaluacji
 
-Do badania rekrutowana jest grupa użytkowników o różnym poziomie zaawansowania (początkujący, średniozaawansowani, zaawansowani). Każdy uczestnik wykonuje zestaw zadań na obu platformach.
+Do badania wybrano dwie wiodące platformy pocztowe:
+- **Gmail** (Google Workspace) — dominant na rynku konsumenckim
+- **Microsoft Outlook** (Web / Office 365) — popularny w środowisku korporacyjnym
 
 ### 3. Schemat badania
 
-- **Zadania**: uczestnicy otrzymują listę czynności do wykonania (np. "znajdź wiadomość od X", "utwórz nową wiadomość z załącznikiem", "oznacz etykietą/folderem")
-- **Pomiar czasu**: mierzony jest czas wykonania każdego zadania na każdej platformie
-- **Ocena subiektywna**: po każdym zadaniu uczestnik ocenia platformę w skali 1-10
-- **Preferencja końcowa**: po wykonaniu wszystkich zadań uczestnik wskazuje ogólnie lepszą platformę
+- **Skala pomiaru**: 1–10 dla każdego kryterium (osobno Gmail i Outlook)
+- **Wiek respondenta**: wymagany (10–100)
+- **Grupy wiekowe**: 15–25, 26–35, 36–44, 45–60
+- **Preferencja końcowa**: Gmail / Outlook / Remis
+- **Informacja o czasie**: respondenci zwracają uwagę na czas wykonania zadania
 
-### 4. Przeprowadzenie analizy
+### 4. Wnioski
 
-Uczestnicy wykonują zadania samodzielnie, a ich odpowiedzi są zapisywane w bazie Supabase. Dane zbierane są anonimowo (opcjonalny pseudonim).
-
-### 5. Wyniki
-
-Dane są agregowane i prezentowane na wykresach porównawczych (średnie ocen Gmail vs Outlook dla każdego kryterium, rozkład preferencji końcowej).
-
-### 6. Wnioski i ulepszenia
-
-Na podstawie wyników formułowane są rekomendacje dotyczące poprawy interfejsu i interakcji dla każdej z platform.
-
----
+Szczegółowe wnioski i rekomendacje w `plan.md` (sekcja 6).
 
 ## Uruchomienie
 
@@ -48,35 +41,32 @@ Na podstawie wyników formułowane są rekomendacje dotyczące poprawy interfejs
 ```bash
 cp .env.example .env   # wypełnij dane Supabase
 npm run config          # generuje src/config.js z .env
-npx serve src/
+npm run dev             # uruchamia serwer na localhost:8080
 ```
 
-Otwórz `http://localhost:3000`.
+### Generowanie wykresów
+
+```bash
+python3 charts/generate.py
+```
+
+Wykresy PNG trafiają do folderu `charts/`.
 
 ### Konfiguracja bazy (Supabase)
 
 1. Załóż projekt w [Supabase](https://supabase.com)
 2. W SQL Editor uruchom `sql/supabase_schema.sql`
-3. Wypełnij `.env` danymi projektu
-4. Uruchom `npm run config` — wygeneruje `src/config.js`
-
-### Notebook
-
-```bash
-uv sync
-uv run jupyter notebook notebooks/analysis.ipynb
-```
-
-### Deploy na GitHub Pages
-
-Wypchnij na `main` — GitHub Actions zbuduje i wdroży `dist/` na Pages.
+3. Opcjonalnie: uruchom `sql/migration_add_age.sql`
+4. Wypełnij `.env` danymi projektu
+5. Uruchom `npm run config`
 
 ## Struktura projektu
 
 - `src/` — kod źródłowy aplikacji webowej (HTML, CSS, JS)
-- `notebooks/` — analiza danych (Jupyter)
+- `charts/` — skrypt generujący wykresy + PNG
 - `scripts/` — narzędzia build (Node.js)
-- `sql/` — schemat bazy Supabase
-- `pyproject.toml` — zależności Python (uv)
+- `sql/` — schemat i migracje bazy Supabase
+- `plan.md` — metodologia i wyniki badania
+- `pyproject.toml` — zależności Python
 - `.env` — konfiguracja Supabase (gitignored)
 - `.github/workflows/deploy-pages.yml` — workflow deploy
