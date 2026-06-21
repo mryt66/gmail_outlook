@@ -15,6 +15,17 @@ const CHART_COLORS = {
   tie: '#999999'
 };
 
+const AGE_GROUP_COLORS = ['#4e79a7', '#59a14f', '#edc948', '#f28e2b', '#e15759', '#b07aa1'];
+
+const AGE_GROUPS = [
+  { label: '0–14', min: 0, max: 14 },
+  { label: '15–25', min: 15, max: 25 },
+  { label: '26–35', min: 26, max: 35 },
+  { label: '36–44', min: 36, max: 44 },
+  { label: '45–60', min: 45, max: 60 },
+  { label: '60+', min: 61, max: 200 }
+];
+
 const appConfig = window.APP_CONFIG || null;
 const hasSupabaseConfig = Boolean(
   appConfig?.supabaseUrl
@@ -247,6 +258,205 @@ function renderPreferenceCharts(data) {
   }));
 }
 
+function getAgeGroup(age) {
+  for (const g of AGE_GROUPS) {
+    if (age >= g.min && age <= g.max) return g.label;
+  }
+  return 'Inne';
+}
+
+function groupByAge(data) {
+  const groups = {};
+  AGE_GROUPS.forEach(g => { groups[g.label] = []; });
+  data.forEach(d => {
+    const label = getAgeGroup(d.age || 0);
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(d);
+  });
+  return groups;
+}
+
+function renderCompletenessStats(container, data) {
+  const countAnswers = (d) => {
+    let n = 0;
+    for (let i = 1; i <= 8; i++) {
+      if (d[`q${i}_gmail`] != null || d[`q${i}_outlook`] != null) n++;
+    }
+    return n;
+  };
+  const full = data.filter(d => countAnswers(d) === 8).length;
+  const half = data.filter(d => { const n = countAnswers(d); return n >= 4 && n < 8; }).length;
+  const partial = data.filter(d => { const n = countAnswers(d); return n >= 1 && n < 4; }).length;
+  const none = data.filter(d => countAnswers(d) === 0).length;
+
+  container.style.display = 'flex';
+  container.innerHTML = `
+    <div class="stat">Pełne (8 pytań): <strong>${full}</strong></div>
+    <div class="stat">Połowa (4-7): <strong>${half}</strong></div>
+    <div class="stat">Częściowe (1-3): <strong>${partial}</strong></div>
+    <div class="stat">Brak pytań: <strong>${none}</strong></div>
+  `;
+}
+
+function renderAgeDistribution(data) {
+  const counts = AGE_GROUPS.map(g => data.filter(d => {
+    const age = d.age || 0;
+    return age >= g.min && age <= g.max;
+  }).length);
+
+  const ctx = document.getElementById('chartAgeDistribution').getContext('2d');
+  activeCharts.push(new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: AGE_GROUPS.map(g => g.label),
+      datasets: [{
+        label: 'Liczba respondentów',
+        data: counts,
+        backgroundColor: AGE_GROUP_COLORS,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Rozkład wieku respondentów',
+          font: { family: "'Space Grotesk', sans-serif", size: 14, weight: '700' }
+        },
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 },
+          title: { display: true, text: 'Liczba' }
+        }
+      }
+    }
+  }));
+}
+
+function renderAgeComparison(data) {
+  const grouped = groupByAge(data);
+  const activeGroups = AGE_GROUPS.filter(g => grouped[g.label] && grouped[g.label].length > 0);
+  const labels = activeGroups.map(g => g.label);
+
+  const gmailMeans = activeGroups.map(g => {
+    const vals = grouped[g.label].map(d => d.q1_gmail).filter(v => v != null && !isNaN(v));
+    const allVals = [];
+    QUESTIONS_ANALYSIS.forEach(q => {
+      grouped[g.label].forEach(d => {
+        const v = d[`${q.id}_gmail`];
+        if (v != null && !isNaN(v)) allVals.push(v);
+      });
+    });
+    return allVals.length ? +(allVals.reduce((a, b) => a + b, 0) / allVals.length).toFixed(2) : 0;
+  });
+
+  const outlookMeans = activeGroups.map(g => {
+    const allVals = [];
+    QUESTIONS_ANALYSIS.forEach(q => {
+      grouped[g.label].forEach(d => {
+        const v = d[`${q.id}_outlook`];
+        if (v != null && !isNaN(v)) allVals.push(v);
+      });
+    });
+    return allVals.length ? +(allVals.reduce((a, b) => a + b, 0) / allVals.length).toFixed(2) : 0;
+  });
+
+  const ctx = document.getElementById('chartAgeComparison').getContext('2d');
+  activeCharts.push(new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Gmail',
+          data: gmailMeans,
+          backgroundColor: CHART_COLORS.gmail,
+          borderRadius: 6
+        },
+        {
+          label: 'Outlook',
+          data: outlookMeans,
+          backgroundColor: CHART_COLORS.outlook,
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Średnia ocen Gmail vs Outlook wg grupy wiekowej',
+          font: { family: "'Space Grotesk', sans-serif", size: 14, weight: '700' }
+        },
+        tooltip: {
+          callbacks: {
+            afterLabel: (ctx) => {
+              const g = activeGroups[ctx.dataIndex];
+              return `n = ${grouped[g.label].length}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 10,
+          title: { display: true, text: 'Średnia ocena' }
+        }
+      }
+    }
+  }));
+}
+
+function renderAgePreference(data) {
+  const grouped = groupByAge(data);
+  const activeGroups = AGE_GROUPS.filter(g => grouped[g.label] && grouped[g.label].length > 0);
+
+  const gmailData = activeGroups.map(g => grouped[g.label].filter(d => d.overall_preference === 'gmail').length);
+  const outlookData = activeGroups.map(g => grouped[g.label].filter(d => d.overall_preference === 'outlook').length);
+  const remisData = activeGroups.map(g => grouped[g.label].filter(d => d.overall_preference === 'remis').length);
+
+  const ctx = document.getElementById('chartAgePreference').getContext('2d');
+  activeCharts.push(new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: activeGroups.map(g => g.label),
+      datasets: [
+        { label: 'Gmail', data: gmailData, backgroundColor: CHART_COLORS.gmail, borderRadius: 4 },
+        { label: 'Outlook', data: outlookData, backgroundColor: CHART_COLORS.outlook, borderRadius: 4 },
+        { label: 'Remis', data: remisData, backgroundColor: CHART_COLORS.tie, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Preferencja końcowa wg grupy wiekowej',
+          font: { family: "'Space Grotesk', sans-serif", size: 14, weight: '700' }
+        }
+      },
+      scales: {
+        x: { stacked: true },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: { stepSize: 1 },
+          title: { display: true, text: 'Liczba odpowiedzi' }
+        }
+      }
+    }
+  }));
+}
+
 async function loadAnalysis() {
   const statusEl = document.getElementById('analysisStatus');
   const statsContainer = document.getElementById('statsContainer');
@@ -277,8 +487,17 @@ async function loadAnalysis() {
     renderComparisonChart(data);
     renderPerQuestionCharts(data);
     renderPreferenceCharts(data);
+    renderAgeDistribution(data);
+    renderAgeComparison(data);
+    renderAgePreference(data);
+
+    const compStats = document.getElementById('completenessStats');
+    if (compStats) renderCompletenessStats(compStats, data);
   } catch (err) {
-    statusEl.textContent = `Błąd ładowania danych: ${err.message}`;
+    const hint = err.message.includes('Failed to fetch')
+      ? ' — uruchom serwer lokalnie: npm run dev lub python3 -m http.server w katalogu src/'
+      : '';
+    statusEl.textContent = `Błąd ładowania danych: ${err.message}${hint}`;
     statsContainer.style.display = 'none';
   }
 }

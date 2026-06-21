@@ -5,7 +5,8 @@
   "scripts": {
     "build": "node ./scripts/build.mjs",
     "deploy": "gh-pages -d dist",
-    "config": "node ./scripts/generate-config.mjs"
+    "config": "node ./scripts/generate-config.mjs",
+    "dev": "cd src && python3 -m http.server 8080"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0"

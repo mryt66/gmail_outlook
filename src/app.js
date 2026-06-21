@@ -156,6 +156,7 @@ async function saveResponse(record) {
 
   const payload = {
     participant_name: record.participant_name,
+    age: record.age,
     experience_level: 'brak',
     overall_preference: record.overall_preference
   };
@@ -187,17 +188,26 @@ form.addEventListener('submit', async (event) => {
 
   const record = {
     participant_name: String(formData.get('participantName') || '').trim(),
+    age: Number(formData.get('participantAge') || 0),
     answers,
     overall_preference: String(formData.get('overallPreference') || ''),
     created_at: new Date().toISOString()
   };
+
+  if (!record.age || record.age < 10 || record.age > 100) {
+    submitStatus.textContent = 'Podaj wiek (10-100).';
+    return;
+  }
 
   try {
     await saveResponse(record);
     form.reset();
     submitStatus.textContent = 'Odpowiedzi zostały zapisane.';
   } catch (error) {
-    submitStatus.textContent = `Błąd zapisu: ${error.message}`;
+    const hint = error.message.includes('Failed to fetch')
+      ? ' — uruchom serwer lokalnie: npm run dev lub python3 -m http.server w katalogu src/'
+      : '';
+    submitStatus.textContent = `Błąd zapisu: ${error.message}${hint}`;
   }
 });
 

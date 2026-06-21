@@ -4,6 +4,7 @@ create table if not exists public.survey_responses (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   participant_name text,
+  age int not null default 25 check (age >= 10 and age <= 100),
   experience_level text not null,
   q1_gmail int,
   q1_outlook int,
